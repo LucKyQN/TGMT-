@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IUH · Motion Lab · Chủ đề 6</title>
+<style>
+:root{--ink:#132b38;--muted:#536a75;--mint:#157b63;--paper:#f4f5ef;--line:#cbd5d3}
+*{box-sizing:border-box}body{margin:0;background:#111b22;font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);overflow:hidden}
+#deck{width:1280px;height:720px;position:absolute;transform-origin:top left}
+.slide{display:none;position:absolute;inset:0;padding:54px 70px 64px;background:var(--paper)}.slide.active{display:block}
+.dark{background:#132b38;color:#f4f5ef;--muted:#b6cbc9;--line:#43616b;--mint:#8de0b3}
+.eyebrow{font-size:18px;font-weight:650;letter-spacing:3px;color:var(--mint);text-transform:uppercase;margin:0 0 18px}
+h1{font-size:66px;line-height:1.13;font-weight:650;letter-spacing:-2px;margin:52px 0 24px;max-width:1030px}
+h2{font-size:43px;line-height:1.18;letter-spacing:-1px;margin:0 0 30px;font-weight:650}
+h3{font-size:24px;margin:0 0 14px;color:var(--mint)}p,li{font-size:25px;line-height:1.5}p{margin:0 0 20px}ul{padding-left:27px;margin:0}li{padding-left:6px;margin-bottom:13px}
+.subtitle{font-size:29px;max-width:970px;color:var(--muted)}.small{font-size:19px;line-height:1.45;color:var(--muted)}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:28px}
+.lead{font-size:33px;line-height:1.4}.formula{font-family:Cambria,Georgia,serif;font-size:42px;line-height:1.5;margin:38px 0;color:var(--mint)}
+.flow{font-size:31px;line-height:1.9;color:var(--mint);margin:32px 0}.big{font-size:100px;line-height:1;font-weight:650;color:var(--mint);margin:10px 0 22px}
+table{width:100%;border-collapse:collapse;font-size:23px;margin:24px 0}th{text-align:left;color:var(--mint);font-weight:650}td,th{padding:16px 14px;border-bottom:1px solid var(--line);line-height:1.35}td:first-child,th:first-child{padding-left:0}
+.compact td,.compact th{padding-top:12px;padding-bottom:12px;font-size:21px}.statement{border-left:5px solid var(--mint);padding-left:24px;margin-top:28px}
+.footer{position:absolute;bottom:25px;left:70px;right:70px;display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px;font-size:15px;color:var(--muted);letter-spacing:1px}
+.notes{display:none}a{color:inherit}code{font-size:21px;background:#142b3810;padding:3px 6px}
+#speaker{display:none;position:fixed;bottom:0;left:0;right:0;max-height:34vh;overflow:auto;background:#fff;color:#132b38;padding:20px 32px;border-top:4px solid #157b63;font-size:19px;line-height:1.5;white-space:pre-wrap;z-index:5}
+#controls{position:fixed;right:10px;top:10px;z-index:4;opacity:0.1}#controls:hover,#controls:focus-within{opacity:1}button{padding:8px 12px;border:0;margin:2px;background:#eef3f0;color:#132b38;cursor:pointer}
+@media print{body{overflow:visible;background:white}#deck{position:static;transform:none!important;width:auto;height:auto}.slide{position:relative;display:block!important;width:1280px;height:720px;break-after:page;page-break-after:always;print-color-adjust:exact;-webkit-print-color-adjust:exact}#controls,#speaker{display:none!important}@page{size:13.333in 7.5in;margin:0}}
+</style>
+</head><body>
+<main id="deck">
+<section class="slide dark active">
+<div class="eyebrow">IUH · Thị giác máy tính · Chủ đề 06</div>
+<h1>Ước lượng tư thế người<br>và phân tích động tác</h1>
+<p class="subtitle">Squat · Hít đất · Plank</p>
+<p class="small" style="margin-top:62px">Python / MediaPipe Tasks / OpenCV / NumPy<br>Bản phương pháp · Kết quả thực nghiệm: chờ video có nhãn</p>
+<div class="notes">Mở đầu: hệ thống hỗ trợ quan sát động tác qua camera bên hông. Không tuyên bố chấm kỹ thuật toàn diện. Nhóm sử dụng pose model có sẵn và tự xây dựng phần đo góc, trạng thái, phản hồi, log, đánh giá. Bổ sung tên nhóm và MSSV trước buổi bảo vệ.</div>
+</section>
+<section class="slide">
+<div class="eyebrow">01 / Bài toán</div><h2>Đầu vào, đầu ra và phạm vi</h2>
+<div class="twocol"><div><h3>Đầu vào</h3><p>Webcam laptop hoặc video file.<br>Một người, góc quay bên hông.<br>Người dùng chọn bài tập.</p><h3>Đầu ra</h3><p>Góc khớp, trạng thái, phản hồi,<br>rep đúng/sai và giây plank.</p></div><div><div class="big">3</div><p class="lead">bài tập dùng chung<br>một quy trình phân tích</p><p class="small">“Đạt” nghĩa là đạt tiêu chí hình học đã định nghĩa; chưa thay thế đánh giá của huấn luyện viên.</p></div></div>
+<div class="notes">Giải thích rằng lựa chọn bài bằng phím 1/2/3, không có mô hình tự phân loại bài. Đây là khác biệt với repo dùng BiLSTM. Dữ liệu chất lượng kỹ thuật là một bài toán riêng với nhận diện loại bài.</div>
+</section>
+<section class="slide">
+<div class="eyebrow">02 / Kiến trúc</div><h2>Quy trình xử lý từng khung hình</h2>
+<p class="flow">Video → Pose landmarks → Kiểm tra khớp<br>→ Góc pixel → EMA → Máy trạng thái<br>→ HUD · CSV · Video đối chiếu</p>
+<div class="twocol"><div><h3>PoseLandmarker</h3><p>Tasks API, model <code>.task</code><br>Lite / Full / Heavy</p></div><div><h3>Thời gian</h3><p>File: <code>frame_idx / FPS</code><br>Webcam: đồng hồ đơn điệu</p></div></div>
+<div class="notes">Nguồn: https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker/python . Dùng VIDEO mode đồng bộ để gắn kết quả với frame. Không gọi đây là LIVE_STREAM callback. FPS phải đo thực tế. app.py tổ chức vòng đọc, pose_backend.py gọi Tasks, exercise_engine.py phân tích độc lập.</div>
+</section>
+<section class="slide dark">
+<div class="eyebrow">03 / Hình học</div><h2>Góc khớp từ tích vô hướng</h2>
+<p>A, B, C là tọa độ pixel; B là đỉnh góc.</p>
+<div class="formula">u = A − B &nbsp;&nbsp; v = C − B<br>θ = arccos[ clip( u·v / (‖u‖ ‖v‖), −1, 1 ) ]</div>
+<p class="lead">x<sub>pixel</sub> = x × W &nbsp;&nbsp;&nbsp; y<sub>pixel</sub> = y × H</p>
+<p class="small">Nhân W, H để giữ tỉ lệ hai trục. Vector suy biến → không đủ dữ liệu.<br>Góc ảnh 2D vẫn chịu ảnh hưởng của phối cảnh và góc quay.</p>
+<div class="notes">Hàm trả độ sau khi nhân 180/pi. Clip chống sai số số thực làm arccos vượt miền. Nếu tính trên x,y chuẩn hóa của ảnh không vuông, hai trục bị co khác nhau. Không nói pixel giải quyết hoàn toàn sai số 3D.</div>
+</section>
+<section class="slide">
+<div class="eyebrow">04 / Độ tin cậy</div><h2>Chọn bên và ổn định tín hiệu</h2>
+<table><tr><th>Bước</th><th>Quy tắc hiện tại</th></tr><tr><td>Kiểm tra khớp</td><td>Visibility ≥ 0.65, presence ≥ 0.5, trong ảnh</td></tr><tr><td>Chọn trái/phải</td><td>Tổng visibility cao nhất; hạn chế đổi bên liên tục</td></tr><tr><td>Làm mượt</td><td>EMA theo Δt, τ = 0.10 giây</td></tr><tr><td>Mất dấu / đổi bên</td><td>Hủy chu kỳ đang dở, giữ lịch sử đã hoàn thành</td></tr></table>
+<p class="small">EMA giảm rung nhưng gây trễ. Các ngưỡng cần tune trên tập dev, sau đó cố định khi test.</p>
+<div class="notes">Alpha = 1 - exp(-dt/tau). Hysteresis giữ bên trước khi chênh tổng visibility nhỏ hơn 0.3. Không ghép góc chân trái và phải thành một rep. Nếu chỉ một khớp bắt buộc thấp, bỏ mẫu thay vì kết luận sai tư thế.</div>
+</section>
+<section class="slide">
+<div class="eyebrow">05 / Squat &amp; hít đất</div><h2>Đếm khi hoàn thành, chấm cả rep</h2>
+<p class="flow" style="font-size:27px">UP → DESCENDING → DOWN → RETURNING → UP</p>
+<table class="compact"><tr><th>Bài</th><th>Góc chính</th><th>Độ sâu</th><th>Form cả rep</th></tr><tr><td>Squat</td><td>Hông–gối–mắt cá</td><td>Min &lt;100°</td><td>Max nghiêng ≤55°</td></tr><tr><td>Hít đất</td><td>Vai–khuỷu–cổ tay</td><td>Min &lt;90°</td><td>Min đường thân &gt;160°</td></tr></table>
+<p class="statement">Bắt đầu hạ ở &lt;145°, trở về lên ở &gt;160°.<br>Rep nông vẫn được đếm và gắn nhãn <strong>SHALLOW</strong>.</p>
+<p class="small">Ngưỡng thử nghiệm; chuyển trạng thái cần ổn định 0.15 giây.</p>
+<div class="notes">Điểm cần bảo vệ: nếu chỉ bắt đầu chu kỳ khi đủ sâu, nhánh sai độ sâu không thể xảy ra. Chu kỳ nông có thể đi từ DESCENDING về UP mà không qua DOWN. Đánh giá cực trị góc đã lọc của toàn chu kỳ. Hít đất thêm gate gần nằm ngang để không đếm gập tay khi đứng.</div>
+</section>
+<section class="slide dark">
+<div class="eyebrow">06 / Plank</div><h2>Đồng hồ chỉ chạy khi form đạt</h2>
+<div class="twocol"><div><h3>Hai điều kiện hình học</h3><p class="lead">Đường thân &gt;160°<br>và lệch ngang &lt;25°</p><p>Ổn định ≥0.30 giây<br>và ít nhất 4 frame.</p></div><div><h3>Quy tắc cộng thời gian</h3><p>Cộng Δt giữa các frame HOLD.<br>Sai hoặc mất dấu → dừng.<br>Đứng thẳng → không tính.</p><p class="small">Không cộng lùi thời gian xác nhận; cần báo sai lệch này so với bấm giờ tay.</p></div></div>
+<p class="small statement">Giả định người dùng đang thực hiện plank. Luật hiện tại chưa phân biệt chắc chắn với nằm nghỉ thẳng người.</p>
+<div class="notes">Góc raw và EMA đều phải đúng để tránh bộ lọc kéo dài thời gian khi người đã sai. Thời gian cộng dồn qua nhiều đoạn. Ground truth là thời gian người quan sát xác nhận, không chỉnh nhãn cho giống thuật toán.</div>
+</section>
+<section class="slide">
+<div class="eyebrow">07 / Dữ liệu</div><h2>Video tự quay là nguồn ground truth chính</h2>
+<table class="compact"><tr><th>Nguồn</th><th>Vai trò</th><th>Giới hạn</th></tr><tr><td>Tự quay: dự kiến 10 clip/bài</td><td>Rep, form, thời gian plank</td><td>Cần gán nhãn và tách người/buổi</td></tr><tr><td>Real-Time Exercise</td><td>Squat / push-up bổ sung</td><td>Tách thật / avatar, lọc góc ngang</td></tr><tr><td>Yoga Poses — Niharika</td><td>Ảnh plank tham khảo</td><td>Không đo được rep / thời gian</td></tr></table>
+<p class="statement">Nhãn “plank” không tự động nghĩa là “đúng kỹ thuật”.<br>Không dùng ảnh tĩnh để chứng minh độ chính xác bộ đếm.</p>
+<div class="notes">Nguồn: https://www.kaggle.com/datasets/riccardoriccio/real-time-exercise-recognition-dataset ; https://huggingface.co/datasets/RickyRiccio/Real_Time_Exercise_Recognition_Dataset/blob/main/README.md ; https://www.kaggle.com/datasets/niharika41298/yoga-poses-dataset . Chưa tải và kiểm tra toàn bộ dữ liệu. 30 clip là kế hoạch, chưa phải số mẫu đã thu. Đây không phải Yoga-82.</div>
+</section>
+<section class="slide">
+<div class="eyebrow">08 / Đánh giá</div><h2>Đối chiếu với quan sát thủ công</h2>
+<div class="twocol"><div><h3>Đếm &amp; thời gian</h3><ul><li>MAE số rep</li><li>Tỉ lệ video đếm đúng hoàn toàn</li><li>MAE giây plank</li><li>FPS live và batch riêng</li></ul></div><div><h3>Chất lượng tư thế</h3><ul><li>Precision, recall, F1 mỗi lớp</li><li>Ma trận có cột unknown</li><li>Ghép rep theo end_s ±0.75 s</li><li>Báo rep dư, thiếu và coverage</li></ul></div></div>
+<p class="small statement">Tách dev/test và nguồn dữ liệu. Clip mixed cần nhãn từng rep, không gán một nhãn cho tất cả động tác.</p>
+<div class="notes">Confusion matrix hàng dung/sai, cột dung/sai/unknown. Unknown là false negative cho lớp thật. Rep dư phản ánh ở detection precision. evaluate.py dùng dynamic programming ghép 1-1 có thứ tự; không chỉ so sánh hàng thứ nhất với hàng thứ nhất khi có rep bỏ sót.</div>
+</section>
+<section class="slide">
+<div class="eyebrow">09 / Thực nghiệm</div><h2>Baseline và bản cải tiến</h2>
+<table class="compact"><tr><th>Tiêu chí</th><th>Starter squat</th><th>Bản cải tiến</th></tr><tr><td>Góc / bên</td><td>Normalized / trái</td><td>Pixel / chọn visibility</td></tr><tr><td>Đếm</td><td>Khi xuống</td><td>Khi trở lại lên</td></tr><tr><td>Form</td><td>Không có</td><td>Cực trị cả rep</td></tr><tr><td>MAE / F1 trên tập thật</td><td>Chưa đo / N/A</td><td>Chưa đo / Chưa đo</td></tr></table>
+<p class="small">Cùng landmarks Tasks để so sánh hậu xử lý. Baseline push-up/plank là mở rộng.<br>Đã kiểm tra vận hành; chưa đủ dữ liệu để kết luận cải thiện accuracy.</p>
+<div class="notes">Sau khi có nhãn, thay bảng dòng kết quả bằng số liệu từ comparison.md và metrics.json, ghi số mẫu nguồn và model. Không dùng số test tự động đạt làm accuracy. Không lấy accuracy nhận diện bài của repo Riccio để minh họa chất lượng đồ án.</div>
+</section>
+<section class="slide dark">
+<div class="eyebrow">10 / Demo</div><h2>Minh họa hành vi có thể kiểm chứng</h2>
+<table class="compact"><tr><th>Tình huống</th><th>Kết quả cần quan sát</th></tr><tr><td>Squat: dừng ở đáy rồi đứng lên</td><td>Chỉ tăng rep khi trở về lên</td></tr><tr><td>Squat nông / hít đất sai đường thân</td><td>Có nhãn lỗi sau khi hoàn thành</td></tr><tr><td>Plank: đứng → giữ → nghỉ</td><td>Đồng hồ chỉ chạy trong HOLD</td></tr><tr><td>Ra khỏi khung hình</td><td>Mất dấu, không tự thêm rep</td></tr></table>
+<p class="small">1 / 2 / 3 chọn bài · Q kết thúc · raw.mp4 + demo.mp4 + CSV<br>Video tập thật có nhãn và bảng đối chiếu là phần cần hoàn thiện tiếp.</p>
+<div class="notes">Mở run_demo.bat trước khi chuyển sang slide này. Đặt camera thấy đầy đủ các khớp. Chuẩn bị video dự phòng đã quay. Không bắt người demo cố làm động tác gây đau; có thể dùng clip lỗi đã có. Sau khi Q chỉ ra CSV của rep cụ thể.</div>
+</section>
+<section class="slide">
+<div class="eyebrow">11 / Giới hạn &amp; phát triển</div><h2>Phạm vi đo và hướng mở rộng</h2>
+<div class="twocol"><div><h3>Giới hạn hiện tại</h3><ul><li>Góc ảnh 2D, nhạy góc quay</li><li>Ngưỡng cố định chưa cá nhân hóa</li><li>Chưa đo độ cong cột sống</li><li>Chưa kiểm định lâm sàng</li></ul></div><div><h3>Hướng tiếp theo</h3><ul><li>Hiệu chỉnh ROM từng người</li><li>Đo nhịp và độ đối xứng</li><li>Đối chiếu với chuyên gia</li><li>Khảo sát 3D / nhiều camera</li></ul></div></div>
+<p class="small statement">Tài liệu: MediaPipe Pose Landmarker · Cao et al., CVPR 2017 · Riccio, 2024<br>Repo và nguồn dataset: docs/RESEARCH.md</p>
+<div class="notes">Nguồn nền: https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker ; https://openaccess.thecvf.com/content_cvpr_2017/html/Cao_Realtime_Multi-Person_2D_CVPR_2017_paper.html ; https://arxiv.org/abs/2411.11548 . OpenPose là tài liệu nền, không phải model ứng dụng đang dùng. Mở rộng vật lý trị liệu cần chuyên gia định nghĩa tiêu chí và kiểm định với phép đo tham chiếu; chưa tuyên bố hiệu quả điều trị.</div>
+</section>
+</main>
+<nav id="controls" aria-label="Điều khiển slide"><button id="prev" aria-label="Slide trước">←</button><button id="next" aria-label="Slide sau">→</button><button id="note">Ghi chú (N)</button></nav>
+<aside id="speaker"></aside>
+<script>
+const slides=[...document.querySelectorAll('.slide')], deck=document.querySelector('#deck'), speaker=document.querySelector('#speaker');
+slides.forEach((s,i)=>{const footer=document.createElement('footer');footer.className='footer';footer.innerHTML=`<span>IUH · MOTION LAB</span><span>${String(i+1).padStart(2,'0')} / ${slides.length}</span>`;s.append(footer)});
+let current=0, notes=false;
+function show(i){current=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===current));speaker.textContent=slides[current].querySelector('.notes').textContent;speaker.style.display=notes?'block':'none';history.replaceState(null,'','#'+(current+1));}
+function resize(){const scale=Math.min(innerWidth/1280,innerHeight/720);deck.style.transform=`scale(${scale})`;deck.style.left=`${(innerWidth-1280*scale)/2}px`;deck.style.top=`${(innerHeight-720*scale)/2}px`;}
+document.querySelector('#prev').onclick=()=>show(current-1);document.querySelector('#next').onclick=()=>show(current+1);document.querySelector('#note').onclick=()=>{notes=!notes;show(current)};
+addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(current+1)}else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(current-1)}else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);else if(e.key.toLowerCase()==='n'){notes=!notes;show(current)}});
+addEventListener('resize',resize);resize();show((parseInt(location.hash.slice(1))||1)-1);
+</script></body></html>

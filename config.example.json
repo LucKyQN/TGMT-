@@ -1,0 +1,29 @@
+{
+  "squat": {
+    "up": 160.0,
+    "start": 145.0,
+    "down": 100.0,
+    "max_lean": 55.0
+  },
+  "pushup": {
+    "up": 160.0,
+    "start": 145.0,
+    "down": 90.0,
+    "min_body": 160.0,
+    "max_horizontal": 35.0
+  },
+  "plank": {
+    "min_body": 160.0,
+    "max_horizontal": 25.0,
+    "confirm_seconds": 0.3,
+    "confirm_frames": 4
+  },
+  "visibility": 0.65,
+  "presence": 0.5,
+  "ema_seconds": 0.1,
+  "transition_seconds": 0.15,
+  "max_gap_seconds": 0.5,
+  "min_rep_seconds": 0.4,
+  "max_rep_seconds": 20.0,
+  "video_form_fraction": 0.9
+}

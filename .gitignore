@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+sessions/
+evaluation/
+models/*.task
+models/*.download
+data/videos/
+build/
+Microsoft/
+.env
+.env.*
+!.env.example
+.vscode/
+*.mp4
+*.avi
+*.mov
+*.mkv
